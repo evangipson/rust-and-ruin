@@ -11,8 +11,8 @@ pub fn draw_status_bar<R: Render>(mode: Mode, status: &str, renderer: &mut R) {
     };
 
     renderer.draw_text(
-        renderer.get_tile_size(),
-        renderer.get_screen_size().1 - renderer.get_tile_size(),
+        renderer.get_tile_size() / 2.,
+        renderer.get_screen_size().1 - (renderer.get_tile_size() / 2.),
         status_message,
         Color::White,
         Color::Black,

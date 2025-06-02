@@ -11,4 +11,5 @@ pub enum Color {
     Magenta,
     Brown,
     DarkGrey,
+    Transparent,
 }

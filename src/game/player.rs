@@ -23,7 +23,13 @@ impl Player {
     }
 
     pub fn draw_player<R: Render>(&self, renderer: &mut R) {
-        renderer.draw_char(self.x, self.y, self.character, self.color);
+        renderer.draw_char(
+            self.x,
+            self.y,
+            self.character,
+            self.color,
+            Color::Transparent,
+        );
     }
 }
 

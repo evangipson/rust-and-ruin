@@ -62,11 +62,11 @@ impl Map {
             (renderer.get_screen_size().1 / renderer.get_tile_size()) as usize;
         for x in 0..horizontal_tiles_to_draw {
             for y in 0..vertical_tiles_to_draw {
-                let (char_to_draw, color) = match self.tiles[x][y] {
-                    Tile::Floor => ('.', Color::DarkGrey),
-                    Tile::Wall => ('#', Color::White),
+                let (char_to_draw, fg_color, bg_color) = match self.tiles[x][y] {
+                    Tile::Floor => (' ', Color::DarkGrey, Color::Green),
+                    Tile::Wall => (' ', Color::White, Color::Black),
                 };
-                renderer.draw_char(x as f32, y as f32, char_to_draw, color);
+                renderer.draw_char(x as f32, y as f32, char_to_draw, fg_color, bg_color);
             }
         }
     }
@@ -83,6 +83,7 @@ impl Map {
                             b.y + y as f32,
                             b.building_type.get_char(),
                             Color::Yellow,
+                            Color::Transparent,
                         )
                     }
                 }

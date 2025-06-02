@@ -1,5 +1,6 @@
-use super::{color::Color, render::Render};
+use super::{color, render::Render};
 use crate::events::{input::InputEvent, mouse};
+use macroquad::color::Color;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, widgets};
 // use std::collections::HashMap;
@@ -37,18 +38,19 @@ impl GraphicsRenderer {
         Ok(())
     }
 
-    fn map_color_to_macroquad(&self, color: Color) -> macroquad::prelude::Color {
+    fn map_color_to_macroquad(&self, color: color::Color) -> macroquad::prelude::Color {
         match color {
-            Color::Black => BLACK,
-            Color::White => WHITE,
-            Color::Red => RED,
-            Color::Green => GREEN,
-            Color::Blue => BLUE,
-            Color::Yellow => YELLOW,
-            Color::Magenta => MAGENTA,
-            Color::DarkGrey => DARKGRAY,
-            // TODO: find out how to implement cyan and brown
-            _ => WHITE,
+            color::Color::Black => BLACK,
+            color::Color::White => WHITE,
+            color::Color::Red => RED,
+            color::Color::Green => DARKGREEN,
+            color::Color::Blue => DARKBLUE,
+            color::Color::Yellow => GOLD,
+            color::Color::Magenta => MAGENTA,
+            color::Color::DarkGrey => DARKGRAY,
+            color::Color::Brown => Color::new(0., 1., 1., 1.),
+            color::Color::Cyan => Color::new(0.54, 0.27, 0.07, 1.0),
+            color::Color::Transparent => Color::new(0., 0., 0., 0.),
         }
     }
 }
@@ -58,10 +60,23 @@ impl Render for GraphicsRenderer {
         clear_background(BLACK);
     }
 
-    fn draw_char(&mut self, x: f32, y: f32, character: char, fg_color: Color) {
+    fn draw_char(
+        &mut self,
+        x: f32,
+        y: f32,
+        character: char,
+        fg_color: color::Color,
+        bg_color: color::Color,
+    ) {
         let mq_fg_color = self.map_color_to_macroquad(fg_color);
-
-        // draw the character (pixel font), for now use macroquad's default font
+        let mq_bg_color = self.map_color_to_macroquad(bg_color);
+        draw_rectangle(
+            x * self.tile_size,
+            y * self.tile_size,
+            self.tile_size,
+            self.tile_size,
+            mq_bg_color,
+        );
         draw_text(
             &character.to_string(),
             x * self.tile_size,
@@ -73,7 +88,7 @@ impl Render for GraphicsRenderer {
 
     fn draw_sprite(&mut self, x: f32, y: f32, _sprite_id: &str) {
         // draw textures from your sprite sheet based on `sprite_id`
-        self.draw_char(x, y, 'S', Color::Magenta);
+        self.draw_char(x, y, 'S', color::Color::Magenta, color::Color::Black);
         // TODO: real implementation... something like:
         /*
         if let Some(texture) = self.textures.get("main_sheet") {
@@ -98,11 +113,30 @@ impl Render for GraphicsRenderer {
         */
     }
 
-    fn draw_text(&mut self, x: f32, y: f32, text: &str, fg_color: Color, bg_color: Color) {
+    fn draw_text(
+        &mut self,
+        x: f32,
+        y: f32,
+        text: &str,
+        fg_color: color::Color,
+        bg_color: color::Color,
+    ) {
         let mq_fg_color = self.map_color_to_macroquad(fg_color);
         let mq_bg_color = self.map_color_to_macroquad(bg_color);
-        draw_rectangle(x, y, self.tile_size, self.tile_size, mq_bg_color);
-        draw_text(text, x, y, self.tile_size, mq_fg_color);
+        draw_rectangle(
+            x,
+            y - self.tile_size + (self.tile_size / 4.),
+            self.get_text_width(text) - (self.tile_size),
+            self.tile_size,
+            mq_bg_color,
+        );
+        draw_text(
+            text,
+            x + (self.tile_size / 2.),
+            y,
+            self.tile_size,
+            mq_fg_color,
+        );
     }
 
     fn draw_menu(&mut self, width: f32, height: f32, title: &str, description: &str) {

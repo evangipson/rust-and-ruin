@@ -7,7 +7,7 @@ pub trait Render {
     fn clear_screen(&mut self);
 
     /// [`Render::draw_char`] draws a character on the screen.
-    fn draw_char(&mut self, x: f32, y: f32, character: char, fg_color: Color);
+    fn draw_char(&mut self, x: f32, y: f32, character: char, fg_color: Color, bg_color: Color);
 
     /// [`Render::draw_sprite`] draws a sprite on the screen by `sprite_id`.
     fn draw_sprite(&mut self, x: f32, y: f32, sprite_id: &str);
