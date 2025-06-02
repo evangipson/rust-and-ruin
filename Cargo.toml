@@ -1,0 +1,9 @@
+[package]
+name = "rust-and-ruin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.27"
+macroquad = "0.3"
+once_cell ="1.19.0"
