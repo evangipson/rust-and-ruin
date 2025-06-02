@@ -4,60 +4,66 @@ use crate::{
     renderer::{color::Color, render::Render},
 };
 
+const TITLE: &str = "RUST & RUIN";
+const TITLE_LINE: &str = "===========";
+const INSTRUCTIONS: &str = "Press Enter to Start";
+const QUIT_INFO: &str = "Press ESC to Quit";
+
 pub fn draw_title_screen<R: Render>(renderer: &mut R) {
-    let (screen_width, screen_height) = renderer.get_screen_size();
+    let (screen_w, screen_h) = renderer.get_screen_size();
     let tile_size = renderer.get_tile_size();
+    draw_title(screen_w, screen_h, tile_size, renderer);
+    draw_instructions(screen_w, screen_h, tile_size, renderer);
+    draw_decorations(screen_w, screen_h, tile_size, renderer);
 
-    let title_line1 = "RUST & RUIN";
-    let title_line2 = "===========";
-    let instructions = "Press 'S' or Enter to Start";
-    let quit_info = "Press ESC to Quit";
+    status_bar::draw_status_bar(Mode::TitleScreen, "pre-alpha", renderer);
+}
 
-    // main title
+fn draw_title<R: Render>(screen_w: f32, screen_h: f32, tile_size: f32, renderer: &mut R) {
     renderer.draw_text(
-        (screen_width / 2.) - (renderer.get_text_width(title_line1) / 2.),
-        (screen_height / 2.) - (2. * tile_size),
-        title_line1,
+        (screen_w / 2.) - (renderer.get_text_width(TITLE) / 2.),
+        (screen_h / 2.) - (2. * tile_size),
+        TITLE,
         Color::White,
         Color::Black,
     );
     renderer.draw_text(
-        (screen_width / 2.) - (renderer.get_text_width(title_line2) / 2.),
-        (screen_height / 2.) - tile_size,
-        title_line2,
+        (screen_w / 2.) - (renderer.get_text_width(TITLE_LINE) / 2.),
+        (screen_h / 2.) - tile_size,
+        TITLE_LINE,
         Color::Yellow,
         Color::Black,
     );
+}
 
-    // instructions
+fn draw_instructions<R: Render>(screen_w: f32, screen_h: f32, tile_size: f32, renderer: &mut R) {
     renderer.draw_text(
-        (screen_width / 2.) - (renderer.get_text_width(instructions) / 2.),
-        (screen_height / 2.) + (2. * tile_size),
-        instructions,
+        (screen_w / 2.) - (renderer.get_text_width(INSTRUCTIONS) / 2.),
+        (screen_h / 2.) + (2. * tile_size),
+        INSTRUCTIONS,
         Color::Green,
         Color::Black,
     );
     renderer.draw_text(
-        (screen_width / 2.) - (renderer.get_text_width(quit_info) / 2.),
-        (screen_height / 2.) + (4. * tile_size),
-        quit_info,
+        (screen_w / 2.) - (renderer.get_text_width(QUIT_INFO) / 2.),
+        (screen_h / 2.) + (4. * tile_size),
+        QUIT_INFO,
         Color::DarkGrey,
         Color::Black,
     );
+}
 
-    // decorative elements
+fn draw_decorations<R: Render>(screen_w: f32, screen_h: f32, tile_size: f32, renderer: &mut R) {
     for y_offset in 0..3 {
         renderer.draw_sprite(
-            (screen_width / 2.) - ((renderer.get_text_width(title_line1) / 2.) - (4. * tile_size)),
-            (screen_height / 2.) - ((2. + y_offset as f32) * tile_size),
+            (screen_w / 2.) - ((renderer.get_text_width(TITLE) / 2.) - (4. * tile_size)),
+            (screen_h / 2.) - ((2. + y_offset as f32) * tile_size),
             "title_char",
         );
         renderer.draw_sprite(
-            (screen_width / 2.) + ((renderer.get_text_width(title_line1) / 2.) + (4. * tile_size)),
-            (screen_height / 2.) - ((2. + y_offset as f32) * tile_size),
+            (screen_w / 2.) + ((renderer.get_text_width(TITLE) / 2.) + (4. * tile_size)),
+            (screen_h / 2.) - ((2. + y_offset as f32) * tile_size),
             "title_char",
         );
     }
-
-    status_bar::draw_status_bar(Mode::TitleScreen, "", renderer);
 }

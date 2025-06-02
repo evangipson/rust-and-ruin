@@ -8,7 +8,6 @@ pub mod events {
 }
 
 pub mod game {
-    pub mod map;
     pub mod mode;
     pub mod player;
     pub mod screen;
@@ -21,6 +20,12 @@ pub mod items {
     pub mod item;
 }
 
+pub mod maps {
+    pub mod building;
+    pub mod map;
+    pub mod tile;
+}
+
 pub mod renderer {
     pub mod color;
     pub mod graphics;
@@ -31,6 +36,7 @@ pub mod ui {
     pub mod crafting;
     pub mod dialog;
     pub mod hud;
+    pub mod interface;
     pub mod inventory;
     pub mod main_menu;
     pub mod playing;

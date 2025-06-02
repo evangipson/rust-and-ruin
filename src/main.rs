@@ -1,3 +1,4 @@
+use macroquad::time;
 use macroquad::window::Conf;
 use rust_and_ruin::game::screen::Screen;
 use rust_and_ruin::renderer::graphics::GraphicsRenderer;
@@ -9,11 +10,14 @@ async fn run_game<R: Render>(mut renderer: R) -> Result<(), Box<dyn std::error::
     let mut game_state = GameState::new();
 
     while !game_state.quit_game {
+        // get the frame time to animate entities smoothly
+        let delta_time = time::get_frame_time();
+
         // handle any input from the player
         renderer
             .poll_input()
             .into_iter()
-            .for_each(|i| game_state.handle_input(i));
+            .for_each(|i| game_state.handle_input(i, delta_time));
 
         // update and draw the game screen
         game_state.update();

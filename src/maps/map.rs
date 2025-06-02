@@ -1,62 +1,12 @@
+use super::{
+    building::{Building, BuildingType},
+    tile::Tile,
+};
 use crate::renderer::{color::Color, render::Render};
 
 const MAX_MAP_WIDTH: usize = 255;
 const MAX_MAP_HEIGHT: usize = 255;
 const MAX_MAP_BUILDINGS: usize = 50;
-
-#[derive(Clone, Copy)]
-pub enum Tile {
-    Floor,
-    Wall,
-}
-
-#[derive(Clone, Copy, PartialEq)]
-pub enum BuildingType {
-    CraftingBench,
-    Default,
-}
-
-impl BuildingType {
-    pub fn get_char(&self) -> char {
-        match self {
-            Self::CraftingBench => 'C',
-            _ => '?',
-        }
-    }
-}
-
-#[derive(Clone, Copy, PartialEq)]
-pub struct Building {
-    pub building_type: BuildingType,
-    pub x: f32,
-    pub y: f32,
-    pub width: f32,
-    pub height: f32,
-}
-
-impl Building {
-    pub fn new(building_type: BuildingType, x: f32, y: f32, width: f32, height: f32) -> Self {
-        Self {
-            building_type,
-            x,
-            y,
-            width,
-            height,
-        }
-    }
-}
-
-impl Default for Building {
-    fn default() -> Self {
-        Building::new(
-            BuildingType::Default,
-            Default::default(),
-            Default::default(),
-            Default::default(),
-            Default::default(),
-        )
-    }
-}
 
 /// [`Map`] represents an area in the game.
 pub struct Map {
@@ -73,17 +23,14 @@ impl Map {
     }
 
     pub fn add_building(&mut self, building: Building) -> bool {
-        // find the index of the first default building
         if let Some(index) = self
             .buildings
-            .iter() // Use .iter() to get immutable references
+            .iter()
             .position(|b| b.building_type == BuildingType::Default)
         {
-            // if an index is found, replace the element at that index
             self.buildings[index] = building;
             true
         } else {
-            // no default building found, array is full
             println!("Map: No space available for new building!");
             false
         }
@@ -119,7 +66,7 @@ impl Map {
                     Tile::Floor => ('.', Color::DarkGrey),
                     Tile::Wall => ('#', Color::White),
                 };
-                renderer.draw_char(x as f32, y as f32, char_to_draw, color, Color::Black);
+                renderer.draw_char(x as f32, y as f32, char_to_draw, color);
             }
         }
     }
@@ -136,7 +83,6 @@ impl Map {
                             b.y + y as f32,
                             b.building_type.get_char(),
                             Color::Yellow,
-                            Color::Black,
                         )
                     }
                 }

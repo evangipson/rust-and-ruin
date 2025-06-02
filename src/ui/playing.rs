@@ -1,6 +1,7 @@
 use super::status_bar;
 use crate::{
-    game::{map::Map, mode::Mode, player::Player},
+    game::{mode::Mode, player::Player},
+    maps::map::Map,
     renderer::render::Render,
 };
 

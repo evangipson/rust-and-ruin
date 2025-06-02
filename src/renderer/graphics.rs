@@ -1,6 +1,7 @@
 use super::{color::Color, render::Render};
 use crate::events::{input::InputEvent, mouse};
 use macroquad::prelude::*;
+use macroquad::ui::{hash, root_ui, widgets};
 // use std::collections::HashMap;
 
 pub struct GraphicsRenderer {
@@ -57,18 +58,8 @@ impl Render for GraphicsRenderer {
         clear_background(BLACK);
     }
 
-    fn draw_char(&mut self, x: f32, y: f32, character: char, fg_color: Color, bg_color: Color) {
+    fn draw_char(&mut self, x: f32, y: f32, character: char, fg_color: Color) {
         let mq_fg_color = self.map_color_to_macroquad(fg_color);
-        let mq_bg_color = self.map_color_to_macroquad(bg_color);
-
-        // draw background rectangle for the character cell
-        draw_rectangle(
-            x * self.tile_size,
-            y * self.tile_size,
-            self.tile_size,
-            self.tile_size,
-            mq_bg_color,
-        );
 
         // draw the character (pixel font), for now use macroquad's default font
         draw_text(
@@ -82,7 +73,7 @@ impl Render for GraphicsRenderer {
 
     fn draw_sprite(&mut self, x: f32, y: f32, _sprite_id: &str) {
         // draw textures from your sprite sheet based on `sprite_id`
-        self.draw_char(x, y, 'S', Color::Magenta, Color::Black);
+        self.draw_char(x, y, 'S', Color::Magenta);
         // TODO: real implementation... something like:
         /*
         if let Some(texture) = self.textures.get("main_sheet") {
@@ -115,29 +106,22 @@ impl Render for GraphicsRenderer {
     }
 
     fn draw_menu(&mut self, width: f32, height: f32, title: &str, description: &str) {
-        let mq_fg_color = self.map_color_to_macroquad(Color::DarkGrey);
-        let mq_bg_color = self.map_color_to_macroquad(Color::Black);
-        draw_rectangle(
-            self.tile_size * 2.,
-            self.tile_size * 2.,
-            width,
-            height,
-            mq_bg_color,
-        );
-        draw_text(
-            title,
-            self.tile_size * 4.,
-            self.tile_size * 3.,
-            self.tile_size,
-            mq_fg_color,
-        );
-        draw_text(
-            description,
-            self.tile_size * 4.,
-            self.tile_size * 4.,
-            self.tile_size,
-            mq_fg_color,
-        );
+        let menu_width = self.tile_size * width;
+        let menu_height = self.tile_size * height;
+        widgets::Window::new(
+            hash!(),
+            vec2(self.tile_size * 2., self.tile_size * 2.),
+            vec2(menu_width, menu_height),
+        )
+        .label(title)
+        .titlebar(true)
+        .ui(&mut root_ui(), |ui| {
+            ui.label(Vec2::new(self.tile_size, self.tile_size), description);
+            ui.button(
+                Vec2::new(self.tile_size, menu_height - self.tile_size * 3.),
+                "close",
+            );
+        });
     }
 
     fn get_screen_size(&self) -> (f32, f32) {
@@ -159,29 +143,23 @@ impl Render for GraphicsRenderer {
         let mut events: Vec<InputEvent> = Vec::new();
 
         // known keyboard character input
-        if is_key_pressed(KeyCode::Up) {
+        if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
             events.push(InputEvent::Up);
         }
-        if is_key_pressed(KeyCode::Down) {
+        if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
             events.push(InputEvent::Down);
         }
-        if is_key_pressed(KeyCode::Left) {
+        if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
             events.push(InputEvent::Left);
         }
-        if is_key_pressed(KeyCode::Right) {
+        if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
             events.push(InputEvent::Right);
         }
-        if is_key_pressed(KeyCode::E) {
+        if is_key_pressed(KeyCode::E) || is_key_pressed(KeyCode::Enter) {
             events.push(InputEvent::Interact);
         }
         if is_key_pressed(KeyCode::Escape) {
             events.push(InputEvent::Quit);
-        }
-        if is_key_pressed(KeyCode::S) {
-            events.push(InputEvent::Character('s'));
-        }
-        if is_key_pressed(KeyCode::Enter) {
-            events.push(InputEvent::Interact);
         }
 
         // general keyboard character input
