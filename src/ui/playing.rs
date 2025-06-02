@@ -5,6 +5,8 @@ use crate::{
     renderer::render::Render,
 };
 
+/// [`draw_playing_screen`] will draw the main gameplay screen containing a [`Map`] and
+/// [`Player`] using a [`Render`] implementation.
 pub fn draw_playing_screen<R: Render>(map: &Map, player: &Player, renderer: &mut R) {
     map.draw_map(renderer);
     player.draw_player(renderer);

@@ -1,10 +1,7 @@
 use super::{mode::Mode, player::Player, screen::Screen};
 use crate::{
-    events::{self, event::Event, input::InputEvent},
-    maps::{
-        building::{Building, BuildingType},
-        map::Map,
-    },
+    events::{self, event::Event, event_listener::EventListener, input::InputEvent},
+    maps::{building::Building, building_type::BuildingType, map::Map},
     renderer::render::Render,
     ui::interface::Interface,
 };
@@ -18,6 +15,7 @@ pub struct GameState {
 }
 
 impl GameState {
+    /// [`GameState::new`] will create a new [`GameState`].
     pub fn new() -> Self {
         let mut game_map = Map::new();
         game_map.add_building(Building::new(BuildingType::CraftingBench, 20., 20., 3., 1.));
@@ -51,12 +49,12 @@ impl Screen for GameState {
 
     fn handle_input(&mut self, input: InputEvent, frame_time: f32) {
         match self.mode {
-            Mode::TitleScreen => match events::title_screen::handle_title_screen_input(input) {
+            Mode::TitleScreen => match Mode::TitleScreen.handle_input(input) {
                 Event::Continue => self.mode = Mode::Playing,
                 Event::Quit => self.quit_game = true,
                 _ => {}
             },
-            Mode::Playing => match events::playing::handle_playing_input(input) {
+            Mode::Playing => match Mode::Playing.handle_input(input) {
                 Event::MovePlayerForward => self.player.x += self.player.speed * frame_time,
                 Event::MovePlayerBackward => self.player.x -= self.player.speed * frame_time,
                 Event::MovePlayerUp => self.player.y -= self.player.speed * frame_time,
@@ -69,12 +67,12 @@ impl Screen for GameState {
                 Event::Quit => self.quit_game = true,
                 _ => {}
             },
-            Mode::Crafting => match events::crafting::handle_crafting_input(input) {
+            Mode::Crafting => match Mode::Crafting.handle_input(input) {
                 Event::Back => self.mode = Mode::Playing,
                 Event::Quit => self.quit_game = true,
                 _ => {}
             },
-            _ => todo!(),
+            Mode::Inventory => todo!(),
         };
     }
 }

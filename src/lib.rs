@@ -1,6 +1,7 @@
 pub mod events {
     pub mod crafting;
     pub mod event;
+    pub mod event_listener;
     pub mod input;
     pub mod mouse;
     pub mod playing;
@@ -22,6 +23,7 @@ pub mod items {
 
 pub mod maps {
     pub mod building;
+    pub mod building_type;
     pub mod map;
     pub mod tile;
 }

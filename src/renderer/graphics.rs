@@ -5,6 +5,7 @@ use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, widgets};
 // use std::collections::HashMap;
 
+/// [`GraphicsRenderer`] is an implementation of [`Render`] that draws basic 2d graphics.
 pub struct GraphicsRenderer {
     // textures: HashMap<String, Texture2D>,
     // sprite_rects: HashMap<String, Rect>,
@@ -20,7 +21,7 @@ impl GraphicsRenderer {
         }
     }
 
-    // [`GraphicsRenderer::load_graphics_assets`] will load all required graphics assets.
+    // [`load_graphics_assets`] will load all required graphics assets.
     pub async fn load_graphics_assets(&mut self) -> Result<(), macroquad::prelude::FileError> {
         // load a default font for `draw_char` and `draw_text`
         // required: .ttf font file in `assets/` directory
@@ -137,6 +138,24 @@ impl Render for GraphicsRenderer {
             self.tile_size,
             mq_fg_color,
         );
+    }
+
+    fn draw_centered_text(
+        &mut self,
+        text: &str,
+        color: color::Color,
+        screen_width: f32,
+        screen_height: f32,
+        y_offset: f32,
+        tile_size: f32,
+    ) {
+        self.draw_text(
+            (screen_width / 2.) - (self.get_text_width(text) / 2.),
+            (screen_height / 2.) + (y_offset * tile_size),
+            text,
+            color,
+            color::Color::Black,
+        )
     }
 
     fn draw_menu(&mut self, width: f32, height: f32, title: &str, description: &str) {

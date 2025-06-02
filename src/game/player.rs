@@ -12,6 +12,7 @@ pub struct Player {
 }
 
 impl Player {
+    /// [`Player::new`] creates a new [`Player`].
     pub fn new(x: f32, y: f32) -> Self {
         Self {
             x,
@@ -22,6 +23,8 @@ impl Player {
         }
     }
 
+    /// [`Player::draw_player`] will draw a [`Player`] on the game screen using
+    /// a [`Render`] implementation.
     pub fn draw_player<R: Render>(&self, renderer: &mut R) {
         renderer.draw_char(
             self.x,

@@ -3,6 +3,8 @@ use crate::{
     renderer::{color::Color, render::Render},
 };
 
+/// [`draw_status_bar`] will draw a status bar based on a provided [`Mode`] and
+/// `status` message using a [`Render`] implementation.
 pub fn draw_status_bar<R: Render>(mode: Mode, status: &str, renderer: &mut R) {
     let status_message = if status.is_empty() {
         &format!("{mode}")

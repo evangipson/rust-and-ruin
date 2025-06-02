@@ -1,5 +1,5 @@
 use super::{event::Event, input::InputEvent};
-use crate::maps::{building::BuildingType, map::Map};
+use crate::maps::{building_type::BuildingType, map::Map};
 
 pub fn handle_playing_input(event: InputEvent) -> Event {
     match event {

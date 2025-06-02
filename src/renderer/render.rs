@@ -15,6 +15,17 @@ pub trait Render {
     /// [`Render::draw_text`] draws some `text` on the screen.
     fn draw_text(&mut self, x: f32, y: f32, text: &str, fg_color: Color, bg_color: Color);
 
+    /// [`Render::draw_centered_text`] draws some `text` centered on the screen.
+    fn draw_centered_text(
+        &mut self,
+        text: &str,
+        color: Color,
+        screen_width: f32,
+        screen_height: f32,
+        y_offset: f32,
+        tile_size: f32,
+    );
+
     /// [`Render::draw_menu`] draws a menu with `title` and `description` on the screen.
     fn draw_menu(&mut self, width: f32, height: f32, title: &str, description: &str);
 
