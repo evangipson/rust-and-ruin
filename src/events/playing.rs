@@ -1,5 +1,8 @@
 use super::{event::Event, input::InputEvent};
-use crate::maps::{building_type::BuildingType, map::Map};
+use crate::{
+    game::player::Player,
+    maps::{building_type::BuildingType, map::Map, tile::Tile},
+};
 
 pub fn handle_playing_input(event: InputEvent) -> Event {
     match event {
@@ -30,5 +33,11 @@ pub fn handle_playing_click(map: &Map, mouse_x: f32, mouse_y: f32) -> Event {
         }
     } else {
         Event::Nothing
+    }
+}
+
+pub fn move_player(player: &mut Player, map: &Map, frame_time: f32, new_position: (f32, f32)) {
+    if let Some(Tile::Floor) = map.get_tile(new_position.0, new_position.1) {
+        player.x += player.speed * frame_time
     }
 }

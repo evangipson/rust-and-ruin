@@ -1,8 +1,8 @@
 use super::{mode::Mode, player::Player, screen::Screen};
 use crate::{
     events::{self, event::Event, event_listener::EventListener, input::InputEvent},
-    maps::{building::Building, building_type::BuildingType, map::Map},
-    renderer::render::Render,
+    maps::{building::Building, building_type::BuildingType, map::Map, tile::Tile},
+    renderer::render::{Render, TILE_SIZE},
     ui::interface::Interface,
 };
 
@@ -18,7 +18,22 @@ impl GameState {
     /// [`GameState::new`] will create a new [`GameState`].
     pub fn new() -> Self {
         let mut game_map = Map::new();
-        game_map.add_building(Building::new(BuildingType::CraftingBench, 20., 20., 3., 1.));
+        let crafting_bench_width = 121. / TILE_SIZE;
+        let crafting_bench_height = 48. / TILE_SIZE;
+        let crafting_bench = Building::new(
+            BuildingType::CraftingBench,
+            20.,
+            20.,
+            crafting_bench_width,
+            crafting_bench_height,
+        );
+
+        game_map.add_building(crafting_bench);
+        for x in 0..crafting_bench_height as usize {
+            for y in 0..crafting_bench_height as usize {
+                game_map.add_tile(Tile::Wall, 20. + x as f32, 20. + y as f32);
+            }
+        }
 
         Self {
             mode: Mode::TitleScreen,
@@ -55,10 +70,18 @@ impl Screen for GameState {
                 _ => {}
             },
             Mode::Playing => match Mode::Playing.handle_input(input) {
-                Event::MovePlayerForward => self.player.x += self.player.speed * frame_time,
-                Event::MovePlayerBackward => self.player.x -= self.player.speed * frame_time,
-                Event::MovePlayerUp => self.player.y -= self.player.speed * frame_time,
-                Event::MovePlayerDown => self.player.y += self.player.speed * frame_time,
+                Event::MovePlayerForward => self
+                    .player
+                    .move_player(((self.player.speed * frame_time), 0.), &self.map),
+                Event::MovePlayerBackward => self
+                    .player
+                    .move_player((-(self.player.speed * frame_time), 0.), &self.map),
+                Event::MovePlayerUp => self
+                    .player
+                    .move_player((0., -(self.player.speed * 0.75 * frame_time)), &self.map),
+                Event::MovePlayerDown => self
+                    .player
+                    .move_player((0., (self.player.speed * 0.75 * frame_time)), &self.map),
                 Event::LeftClicked { x, y } => {
                     if let Event::Craft = events::playing::handle_playing_click(&self.map, x, y) {
                         self.mode = Mode::Crafting

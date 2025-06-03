@@ -1,23 +1,26 @@
 use super::{color, render::Render};
 use crate::events::{input::InputEvent, mouse};
+use crate::shaders::starfield;
 use macroquad::color::Color;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, widgets};
-// use std::collections::HashMap;
+use std::collections::HashMap;
 
 /// [`GraphicsRenderer`] is an implementation of [`Render`] that draws basic 2d graphics.
 pub struct GraphicsRenderer {
-    // textures: HashMap<String, Texture2D>,
-    // sprite_rects: HashMap<String, Rect>,
+    textures: HashMap<String, Texture2D>,
+    sprite_rects: HashMap<String, Rect>,
     tile_size: f32,
+    shaders: [Material; 1],
 }
 
 impl GraphicsRenderer {
     pub fn new(tile_size: f32) -> Self {
         Self {
-            // textures: HashMap::new(),
-            // sprite_rects: HashMap::new(),
+            textures: HashMap::new(),
+            sprite_rects: HashMap::new(),
             tile_size,
+            shaders: [starfield::create_starfield_shader()],
         }
     }
 
@@ -30,11 +33,22 @@ impl GraphicsRenderer {
         // let font_data = load_file("assets/monogram.ttf").await?;
         // self.font = Some(load_ttf_font_from_bytes(font_data.as_slice())?);
 
-        // load a sprite sheet if you're using one for sprites
-        // e.g., let sheet = load_texture("assets/spritesheet.png").await?;
-        // self.textures.insert("main_sheet".to_string(), sheet);
-        // self.sprite_rects.insert("player".to_string(), Rect::new(0.0, 0.0, 16.0, 16.0));
-        // ... define more sprite regions
+        let main_sheet = load_texture("assets/sprites/main_sheet.png").await?;
+        self.textures.insert("main_sheet".to_string(), main_sheet);
+        self.sprite_rects
+            .insert("crafting_bench".to_string(), Rect::new(0., 0., 121., 48.));
+        self.sprite_rects
+            .insert("player_base".to_string(), Rect::new(0., 49., 50., 93.));
+        self.sprite_rects
+            .insert("player_back".to_string(), Rect::new(52., 49., 51., 93.));
+        self.sprite_rects
+            .insert("player_left".to_string(), Rect::new(103., 49., 51., 93.));
+        self.sprite_rects
+            .insert("player_right".to_string(), Rect::new(154., 49., 51., 93.));
+        self.sprite_rects.insert(
+            "player_interact".to_string(),
+            Rect::new(205., 49., 51., 93.),
+        );
 
         Ok(())
     }
@@ -87,31 +101,28 @@ impl Render for GraphicsRenderer {
         );
     }
 
-    fn draw_sprite(&mut self, x: f32, y: f32, _sprite_id: &str) {
-        // draw textures from your sprite sheet based on `sprite_id`
-        self.draw_char(x, y, 'S', color::Color::Magenta, color::Color::Black);
-        // TODO: real implementation... something like:
-        /*
+    // draw textures from the main sprite sheet based on `sprite_id`
+    fn draw_sprite(&mut self, x: f32, y: f32, sprite_id: &str) {
         if let Some(texture) = self.textures.get("main_sheet") {
             if let Some(rect) = self.sprite_rects.get(sprite_id) {
                 draw_texture_ex(
                     *texture,
-                    x as f32 * self.tile_size,
-                    y as f32 * self.tile_size,
-                    WHITE, // Apply texture color white
+                    x * self.tile_size,
+                    y * self.tile_size,
+                    WHITE,
                     DrawTextureParams {
                         source: Some(*rect),
-                        dest_size: Some(vec2(self.tile_size, self.tile_size)),
                         ..Default::default()
                     },
                 );
             } else {
-                self.draw_char(x,y, '?', Color::Red, Color::Black); // Sprite not found
+                // sprite not found
+                self.draw_char(x, y, '?', color::Color::Red, color::Color::Black);
             }
         } else {
-            self.draw_char(x,y, '?', Color::Red, Color::Black); // Sheet not loaded
+            // sheet not loaded
+            self.draw_char(x, y, '?', color::Color::Red, color::Color::Black);
         }
-        */
     }
 
     fn draw_text(
@@ -252,5 +263,13 @@ impl Render for GraphicsRenderer {
         }
 
         events
+    }
+
+    fn get_shader_material(&self, shader_index: usize) -> Option<Material> {
+        if self.shaders.len() >= shader_index {
+            Some(self.shaders[shader_index])
+        } else {
+            None
+        }
     }
 }

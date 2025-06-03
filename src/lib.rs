@@ -34,6 +34,10 @@ pub mod renderer {
     pub mod render;
 }
 
+pub mod shaders {
+    pub mod starfield;
+}
+
 pub mod ui {
     pub mod crafting;
     pub mod dialog;

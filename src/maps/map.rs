@@ -1,9 +1,9 @@
 use super::{building::Building, building_type::BuildingType, tile::Tile};
 use crate::renderer::{color::Color, render::Render};
 
-const MAX_MAP_WIDTH: usize = 255;
-const MAX_MAP_HEIGHT: usize = 255;
-const MAX_MAP_BUILDINGS: usize = 50;
+const MAX_MAP_WIDTH: usize = 128;
+const MAX_MAP_HEIGHT: usize = 128;
+const MAX_MAP_BUILDINGS: usize = 10;
 
 /// [`Map`] represents an area in the game.
 pub struct Map {
@@ -57,13 +57,26 @@ impl Map {
         self.tiles[x as usize][y as usize] = tile;
     }
 
+    /// [`Map::get_tile`] will query an (`x`, `y`) coordinate of a [`Map`] for
+    /// a tile and return [`Some`] [`Tile`] if one is found, and [`None`] otherwise.
+    pub fn get_tile(&self, x: f32, y: f32) -> Option<Tile> {
+        let is_x_within_range = x > 0. && x < self.tiles[0].len() as f32;
+        let is_y_within_range = y > 0. && y < self.tiles.len() as f32;
+        if is_x_within_range && is_y_within_range {
+            Some(self.tiles[x as usize][y as usize])
+        } else {
+            None
+        }
+    }
+
     /// [`Map::draw_map`] will render a map using a [`Render`] implementation.
     pub fn draw_map<R: Render>(&self, renderer: &mut R) {
         self.draw_tiles(renderer);
         self.draw_buildings(renderer);
     }
 
-    fn draw_tiles<R: Render>(&self, renderer: &mut R) {
+    /// [`Map::draw_tiles`] will render the tiles of a [`Map`] using a [`Render`] implementation.
+    pub fn draw_tiles<R: Render>(&self, renderer: &mut R) {
         let horizontal_tiles_to_draw =
             (renderer.get_screen_size().0 / renderer.get_tile_size()) as usize;
         let vertical_tiles_to_draw =
@@ -71,31 +84,21 @@ impl Map {
         for x in 0..horizontal_tiles_to_draw {
             for y in 0..vertical_tiles_to_draw {
                 let (char_to_draw, fg_color, bg_color) = match self.tiles[x][y] {
-                    Tile::Floor => (' ', Color::DarkGrey, Color::Green),
-                    Tile::Wall => (' ', Color::White, Color::Black),
+                    Tile::Floor => (' ', Color::Transparent, Color::DarkGrey),
+                    Tile::Wall => (' ', Color::Transparent, Color::Black),
+                    Tile::Building => (' ', Color::Transparent, Color::Transparent),
                 };
                 renderer.draw_char(x as f32, y as f32, char_to_draw, fg_color, bg_color);
             }
         }
     }
 
-    fn draw_buildings<R: Render>(&self, renderer: &mut R) {
+    /// [`Map::draw_buildings`] will render the buildings of a [`Map`] using a [`Render`] implementation.
+    pub fn draw_buildings<R: Render>(&self, renderer: &mut R) {
         self.buildings
             .into_iter()
             .filter(|b| b.building_type != BuildingType::Default)
-            .for_each(|b| {
-                for x in 0..b.width as usize {
-                    for y in 0..b.height as usize {
-                        renderer.draw_char(
-                            b.x + x as f32,
-                            b.y + y as f32,
-                            b.building_type.get_char(),
-                            Color::Yellow,
-                            Color::Transparent,
-                        )
-                    }
-                }
-            });
+            .for_each(|b| renderer.draw_sprite(b.x, b.y, b.building_type.get_sprite_id()));
     }
 }
 

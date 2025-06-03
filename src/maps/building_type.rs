@@ -8,11 +8,12 @@ pub enum BuildingType {
 }
 
 impl BuildingType {
-    /// [`BuildingType::get_char`] gets a [`char`] that represents a [`BuildingType`].
-    pub fn get_char(&self) -> char {
+    /// [`BuildingType::get_sprite_id`] gets a [`&str`](str) that represents an id for
+    /// a sprite.
+    pub fn get_sprite_id(&self) -> &str {
         match self {
-            BuildingType::CraftingBench => 'C',
-            _ => '?',
+            BuildingType::CraftingBench => "crafting_bench",
+            _ => "unknown",
         }
     }
 }

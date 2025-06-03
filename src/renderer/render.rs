@@ -1,5 +1,9 @@
+use macroquad::prelude::Material;
+
 use super::color::Color;
 use crate::events::input::InputEvent;
+
+pub const TILE_SIZE: f32 = 24.;
 
 /// [`Render`] will be implemented to draw things on the game screen.
 pub trait Render {
@@ -42,4 +46,8 @@ pub trait Render {
 
     /// [`Render::get_text_width`] returns the width of some `text` on the screen.
     fn get_text_width(&self, text: &str) -> f32;
+
+    /// [`Render::get_shader_material`] returns [`Some`] [`Material`] for a shader by
+    /// `shader_index` if one exists, and [`None`] otherwise.
+    fn get_shader_material(&self, shader_index: usize) -> Option<Material>;
 }
