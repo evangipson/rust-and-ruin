@@ -2,6 +2,7 @@ use super::{color, render::Render};
 use crate::events::{input::InputEvent, mouse};
 use crate::shaders::starfield;
 use macroquad::color::Color;
+use macroquad::prelude::animation::{AnimatedSprite, Animation};
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, widgets};
 use std::collections::HashMap;
@@ -10,6 +11,7 @@ use std::collections::HashMap;
 pub struct GraphicsRenderer {
     textures: HashMap<String, Texture2D>,
     sprite_rects: HashMap<String, Rect>,
+    animations: HashMap<String, AnimatedSprite>,
     tile_size: f32,
     shaders: [Material; 1],
 }
@@ -19,6 +21,7 @@ impl GraphicsRenderer {
         Self {
             textures: HashMap::new(),
             sprite_rects: HashMap::new(),
+            animations: HashMap::new(),
             tile_size,
             shaders: [starfield::create_starfield_shader()],
         }
@@ -35,22 +38,97 @@ impl GraphicsRenderer {
 
         let main_sheet = load_texture("assets/sprites/main_sheet.png").await?;
         self.textures.insert("main_sheet".to_string(), main_sheet);
+
+        let character_walk = load_texture("assets/sprites/character_walk.png").await?;
+        self.textures
+            .insert("character_walk".to_string(), character_walk);
+
         self.sprite_rects
             .insert("crafting_bench".to_string(), Rect::new(0., 0., 121., 48.));
-        self.sprite_rects
-            .insert("player_base".to_string(), Rect::new(0., 49., 50., 93.));
-        self.sprite_rects
-            .insert("player_back".to_string(), Rect::new(52., 49., 51., 93.));
-        self.sprite_rects
-            .insert("player_left".to_string(), Rect::new(103., 49., 51., 93.));
-        self.sprite_rects
-            .insert("player_right".to_string(), Rect::new(154., 49., 51., 93.));
+        self.sprite_rects.insert(
+            "player_base".to_string(),
+            self.map_sprite_coords_to_rect(0., 49., 26., 62., 3, 2),
+        );
+        self.sprite_rects.insert(
+            "player_back".to_string(),
+            self.map_sprite_coords_to_rect(0., 49., 26., 62., 1, 2),
+        );
+        self.sprite_rects.insert(
+            "player_left".to_string(),
+            self.map_sprite_coords_to_rect(0., 49., 26., 62., 4, 2),
+        );
+        self.sprite_rects.insert(
+            "player_right".to_string(),
+            self.map_sprite_coords_to_rect(0., 49., 26., 62., 2, 2),
+        );
         self.sprite_rects.insert(
             "player_interact".to_string(),
-            Rect::new(205., 49., 51., 93.),
+            self.map_sprite_coords_to_rect(0., 49., 26., 62., 3, 2),
+        );
+
+        self.animations.insert(
+            "character_walk".to_string(),
+            AnimatedSprite::new(
+                48,
+                64,
+                &[
+                    Animation {
+                        name: "player_walk".to_string(),
+                        row: 2,
+                        frames: 3,
+                        fps: 5,
+                    },
+                    Animation {
+                        name: "player_walk_left".to_string(),
+                        row: 3,
+                        frames: 3,
+                        fps: 5,
+                    },
+                    Animation {
+                        name: "player_walk_right".to_string(),
+                        row: 1,
+                        frames: 3,
+                        fps: 5,
+                    },
+                    Animation {
+                        name: "player_walk_up".to_string(),
+                        row: 0,
+                        frames: 3,
+                        fps: 5,
+                    },
+                ],
+                false,
+            ),
         );
 
         Ok(())
+    }
+
+    fn map_sprite_coords_to_rect(
+        &self,
+        start_x: f32,
+        start_y: f32,
+        w: f32,
+        h: f32,
+        row: u8,
+        col: u8,
+    ) -> Rect {
+        Rect::new(
+            start_x + ((col as f32 - 1.) * w),
+            start_y + ((row as f32 - 1.) * h),
+            w,
+            h,
+        )
+    }
+
+    fn map_animation_to_index(&self, animation: &str) -> usize {
+        match animation {
+            "player_walk" => 0,
+            "player_walk_left" => 1,
+            "player_walk_right" => 2,
+            "player_walk_up" => 3,
+            _ => 0,
+        }
     }
 
     fn map_color_to_macroquad(&self, color: color::Color) -> macroquad::prelude::Color {
@@ -123,6 +201,35 @@ impl Render for GraphicsRenderer {
             // sheet not loaded
             self.draw_char(x, y, '?', color::Color::Red, color::Color::Black);
         }
+    }
+
+    fn draw_animation(&mut self, x: f32, y: f32, sheet_id: &str, animation: &str) {
+        let animation_index = self.map_animation_to_index(animation);
+        let animation_sprite = self.animations.get_mut(sheet_id).unwrap();
+        if animation_sprite.current_animation() != animation_index {
+            animation_sprite.set_animation(animation_index);
+            animation_sprite.playing = true;
+        }
+        animation_sprite.update();
+        if let Some(animation) = self.animations.get(sheet_id)
+            && let Some(texture) = self.textures.get(sheet_id)
+        {
+            draw_texture_ex(
+                *texture,
+                x * self.tile_size,
+                y * self.tile_size,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(animation.frame().source_rect),
+                    ..Default::default()
+                },
+            );
+        };
+    }
+
+    fn stop_animation(&mut self, sheet_id: &str) {
+        let animated_sprite = self.animations.get_mut(sheet_id).unwrap();
+        animated_sprite.playing = false;
     }
 
     fn draw_text(

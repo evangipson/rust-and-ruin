@@ -16,6 +16,12 @@ pub trait Render {
     /// [`Render::draw_sprite`] draws a sprite on the screen by `sprite_id`.
     fn draw_sprite(&mut self, x: f32, y: f32, sprite_id: &str);
 
+    /// [`Render::draw_sprite`] draws an animated sprite on the screen with a name
+    /// denoted by `animation`.
+    fn draw_animation(&mut self, x: f32, y: f32, sheet_id: &str, animation: &str);
+
+    fn stop_animation(&mut self, sheet_id: &str);
+
     /// [`Render::draw_text`] draws some `text` on the screen.
     fn draw_text(&mut self, x: f32, y: f32, text: &str, fg_color: Color, bg_color: Color);
 
