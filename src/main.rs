@@ -19,8 +19,10 @@ async fn run_game<R: Render>(mut renderer: R) -> Result<(), Box<dyn std::error::
             .into_iter()
             .for_each(|i| game_state.handle_input(i, delta_time));
 
-        // update and draw the game screen
+        // update the game state
         game_state.update();
+
+        // draw the game screen
         game_state.draw_screen(&mut renderer);
 
         // wait until the next frame is drawn

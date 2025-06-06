@@ -48,6 +48,7 @@ impl GameState {
         match self.mode {
             Mode::TitleScreen => {}
             Mode::Playing => {
+                self.player.update();
                 // update player, enemies, world events etc.
                 // TODO: player gain XP to show status bar will change
                 // self.player.gain_xp(1);

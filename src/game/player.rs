@@ -21,6 +21,8 @@ pub struct Player {
     pub animation: String,
     pub color: Color,
     is_walking: bool,
+    last_x: f32,
+    last_y: f32,
 }
 
 impl Player {
@@ -34,7 +36,16 @@ impl Player {
             animation: "player_walk".to_owned(),
             color: Color::White,
             is_walking: false,
+            last_x: x,
+            last_y: y,
         }
+    }
+
+    /// [`Player::update`] will be called every frame to update the [`Player`] state.
+    pub fn update(&mut self) {
+        self.is_walking = self.last_x != self.x || self.last_y != self.y;
+        self.last_x = self.x;
+        self.last_y = self.y;
     }
 
     /// [`Player::draw_player`] will draw a [`Player`] on the game screen using
@@ -48,16 +59,9 @@ impl Player {
         }
     }
 
-    // TODO: fix the walking never stopping
-    pub fn stop_walking(&mut self) {
-        println!("called stop walking!");
-        self.is_walking = false;
-    }
-
     /// [`Player::move_player`] will move a player, as long as the [`Tile`] they
     /// are moving to is a passable tile.
     pub fn move_player(&mut self, new_position: (f32, f32), map: &Map) {
-        println!("called move player!");
         if let Some(tile) = map.get_tile(
             if new_position.0 < 0. {
                 self.x + new_position.0
@@ -71,7 +75,6 @@ impl Player {
             },
         ) && tile.eq(&Tile::Floor)
         {
-            self.is_walking = true;
             self.update_sprite(new_position);
             self.x += new_position.0;
             self.y += new_position.1;
